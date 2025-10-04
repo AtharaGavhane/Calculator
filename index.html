@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles for a better look and feel */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+        }
+        .calculator-button {
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .calculator-button:active {
+            transform: scale(0.95);
+        }
+        /* Style for the history panel scrollbar */
+        #history-display::-webkit-scrollbar {
+            width: 8px;
+        }
+        #history-display::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #history-display::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #history-display::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .mic-listening {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-4">
+    <div class="flex flex-col md:flex-row gap-6 w-full max-w-4xl">
+        <!-- Calculator Body -->
+        <div class="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 space-y-4">
+            
+            <!-- Display Screen -->
+            <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-xl text-right overflow-x-auto">
+                <div id="display" class="text-4xl lg:text-5xl font-semibold text-gray-800 dark:text-gray-100 break-all min-h-[60px] flex items-center justify-end">0</div>
+            </div>
+
+            <!-- Buttons Grid -->
+            <div class="grid grid-cols-5 gap-3">
+                 <!-- Row 1: New Functions -->
+                <button onclick="handleAdvanced('log')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">log</button>
+                <button onclick="handleAdvanced('ln')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">ln</button>
+                <button onclick="appendCharacter('π')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">π</button>
+                <button onclick="appendCharacter('e')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">e</button>
+                <button onclick="appendCharacter('%')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">%</button>
+                
+                <!-- Row 2: Advanced Functions -->
+                <button onclick="handleAdvanced('sqrt')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">√</button>
+                <button onclick="handleAdvanced('pow')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">x²</button>
+                <button onclick="appendCharacter('(')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">(</button>
+                <button onclick="appendCharacter(')')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">)</button>
+                <button onclick="clearAll()" class="calculator-button bg-red-500 hover:bg-red-600 text-white text-xl font-bold py-3 rounded-xl">AC</button>
+                
+                <!-- Row 3 -->
+                <button onclick="handleAdvanced('sin')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">sin</button>
+                <button onclick="appendCharacter('7')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">7</button>
+                <button onclick="appendCharacter('8')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">8</button>
+                <button onclick="appendCharacter('9')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">9</button>
+                <button onclick="appendCharacter('/')" class="calculator-button bg-orange-500 text-white text-2xl font-bold py-3 rounded-xl">÷</button>
+
+                <!-- Row 4 -->
+                <button onclick="handleAdvanced('cos')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">cos</button>
+                <button onclick="appendCharacter('4')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">4</button>
+                <button onclick="appendCharacter('5')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">5</button>
+                <button onclick="appendCharacter('6')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">6</button>
+                <button onclick="appendCharacter('*')" class="calculator-button bg-orange-500 text-white text-2xl font-bold py-3 rounded-xl">×</button>
+
+                <!-- Row 5 -->
+                <button onclick="handleAdvanced('tan')" class="calculator-button bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">tan</button>
+                <button onclick="appendCharacter('1')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">1</button>
+                <button onclick="appendCharacter('2')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">2</button>
+                <button onclick="appendCharacter('3')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">3</button>
+                <button onclick="appendCharacter('-')" class="calculator-button bg-orange-500 text-white text-2xl font-bold py-3 rounded-xl">−</button>
+
+                <!-- Row 6 -->
+                <button id="mic-button" class="calculator-button bg-red-400 text-white text-2xl font-bold py-3 rounded-xl"><i class="fas fa-microphone"></i></button>
+                <button onclick="appendCharacter('0')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">0</button>
+                <button onclick="appendCharacter('.')" class="calculator-button bg-gray-200 dark:bg-gray-500 text-gray-800 dark:text-gray-100 text-2xl font-bold py-3 rounded-xl">.</button>
+                <button onclick="deleteLast()" class="calculator-button bg-gray-400 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xl font-bold py-3 rounded-xl">DEL</button>
+                <button onclick="calculateResult()" class="calculator-button bg-orange-500 text-white text-2xl font-bold py-3 rounded-xl">=</button>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="w-full md:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">History</h3>
+                <button onclick="clearHistory()" class="text-sm text-red-500 hover:underline">Clear</button>
+            </div>
+            <div id="history-display" class="flex-grow space-y-2 overflow-y-auto pr-2">
+                <!-- History items will be injected here -->
+                <p class="text-gray-500 dark:text-gray-400 text-center">No calculations yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const historyDisplay = document.getElementById('history-display');
+        const micButton = document.getElementById('mic-button');
+
+        let currentExpression = '';
+        let resultCalculated = false;
+        let history = [];
+
+        // Function to append characters to the display
+        function appendCharacter(char) {
+            if (resultCalculated) {
+                if ('+-*/%'.includes(char)) {
+                    currentExpression = display.textContent;
+                } else {
+                    currentExpression = '';
+                }
+                resultCalculated = false;
+            }
+             if (char === 'π') {
+                currentExpression += Math.PI;
+            } else if (char === 'e') {
+                currentExpression += Math.E;
+            } else if (display.textContent === '0' && !'+-*/%.()'.includes(char)) {
+                currentExpression = char;
+            } else {
+                currentExpression += char;
+            }
+            display.textContent = currentExpression || '0';
+        }
+        
+        // Handle advanced math functions
+        function handleAdvanced(func) {
+             if (resultCalculated) {
+                currentExpression = display.textContent;
+                resultCalculated = false;
+            }
+            if(currentExpression === '' || (isNaN(currentExpression.slice(-1)) && currentExpression.slice(-1) !== ')')) return;
+
+            switch(func) {
+                case 'sqrt':
+                    currentExpression = `Math.sqrt(${currentExpression})`;
+                    break;
+                case 'pow':
+                    currentExpression = `Math.pow(${currentExpression}, 2)`;
+                    break;
+                case 'sin':
+                    currentExpression = `Math.sin(Math.PI/180 * ${currentExpression})`; // Degree input
+                    break;
+                case 'cos':
+                    currentExpression = `Math.cos(Math.PI/180 * ${currentExpression})`; // Degree input
+                    break;
+                case 'tan':
+                    currentExpression = `Math.tan(Math.PI/180 * ${currentExpression})`; // Degree input
+                    break;
+                case 'log':
+                    currentExpression = `Math.log10(${currentExpression})`;
+                    break;
+                case 'ln':
+                    currentExpression = `Math.log(${currentExpression})`;
+                    break;
+            }
+            calculateResult();
+        }
+
+        // Function to clear the display
+        function clearAll() {
+            currentExpression = '';
+            display.textContent = '0';
+            resultCalculated = false;
+        }
+
+        // Function to delete the last character
+        function deleteLast() {
+            if (resultCalculated) {
+                clearAll();
+                return;
+            }
+            currentExpression = String(currentExpression).slice(0, -1);
+            display.textContent = currentExpression || '0';
+        }
+        
+        // Function to speak text
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Cancel any previous speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Function to calculate the result
+        function calculateResult() {
+            if (currentExpression === '') return;
+            try {
+                // Replace percentage symbol
+                let expr = String(currentExpression).replace(/%/g, '/100');
+                const result = new Function('return ' + expr)();
+
+                if (!isFinite(result)) {
+                    display.textContent = 'Error';
+                    speak('Error');
+                } else {
+                    const finalResult = parseFloat(result.toFixed(10));
+                    addToHistory(currentExpression, finalResult);
+                    display.textContent = finalResult;
+                    currentExpression = '' + finalResult;
+                    speak(`The result is ${finalResult}`);
+                }
+                resultCalculated = true;
+            } catch (error) {
+                display.textContent = 'Error';
+                speak('Error');
+                currentExpression = '';
+                resultCalculated = true;
+            }
+        }
+
+        // --- HISTORY FUNCTIONS ---
+        function addToHistory(expression, result) {
+            history.unshift({ expression, result });
+            if (history.length > 20) { history.pop(); }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyDisplay.innerHTML = '';
+            if (history.length === 0) {
+                historyDisplay.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center">No calculations yet.</p>';
+                return;
+            }
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-right';
+                historyItem.innerHTML = `
+                    <div class="text-gray-500 dark:text-gray-400 text-sm break-words">${item.expression}</div>
+                    <div class="text-gray-800 dark:text-gray-200 font-semibold">${item.result}</div>
+                `;
+                historyDisplay.appendChild(historyItem);
+            });
+        }
+
+        function clearHistory() {
+            history = [];
+            renderHistory();
+            speak('History cleared');
+        }
+
+        // --- VOICE COMMANDS ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            micButton.addEventListener('click', () => {
+                recognition.start();
+                speak('Listening');
+            });
+
+            recognition.onstart = () => micButton.classList.add('mic-listening');
+            recognition.onend = () => micButton.classList.remove('mic-listening');
+            recognition.onerror = () => speak('Sorry, I did not catch that.');
+            recognition.onresult = (event) => {
+                let transcript = event.results[0][0].transcript.toLowerCase().trim();
+                processVoiceCommand(transcript);
+            };
+        } else {
+            micButton.disabled = true;
+            micButton.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            micButton.title = "Voice commands are not supported in your browser.";
+        }
+        
+        function convertWordsToNumbers(text) {
+             const numberWords = {
+                'zero': '0', 'one': '1', 'two': '2', 'to': '2', 'three': '3', 'four': '4', 'for': '4',
+                'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'ten': '10'
+            };
+            let result = text;
+            for (const word in numberWords) {
+                result = result.replace(new RegExp(`\\b${word}\\b`, 'g'), numberWords[word]);
+            }
+            return result;
+        }
+
+        function processVoiceCommand(command) {
+            if (command.endsWith('.')) command = command.slice(0, -1);
+
+            if (command === 'clear' || command === 'reset') { clearAll(); return; }
+            if (command === 'delete' || command === 'backspace') { deleteLast(); return; }
+            if (command === 'equals' || command === 'calculate') { calculateResult(); return; }
+            if (command === 'clear history') { clearHistory(); return; }
+
+            command = convertWordsToNumbers(command);
+            
+            let match;
+
+            match = command.match(/(what is |calculate )?([\d.]+) percent of ([\d.]+)/);
+            if (match) {
+                currentExpression = `(${match[2]}/100) * ${match[3]}`;
+                display.textContent = currentExpression; calculateResult(); return;
+            }
+
+            const funcMap = { 'square root of': 'sqrt', 'log of': 'log', 'natural log of': 'ln', 'sine of': 'sin', 'cos of': 'cos', 'tan of': 'tan' };
+            for(const [phrase, func] of Object.entries(funcMap)) {
+                if(command.startsWith(phrase)) {
+                    currentExpression = command.substring(phrase.length).trim();
+                    display.textContent = currentExpression; handleAdvanced(func); return;
+                }
+            }
+            
+            match = command.match(/(.*) squared/);
+            if (match) {
+                currentExpression = match[1].trim();
+                display.textContent = currentExpression; handleAdvanced('pow'); return;
+            }
+            
+            if (command === 'pi') { appendCharacter('π'); return; }
+            if (command === 'e' || command === "euler's number") { appendCharacter('e'); return; }
+
+            let expression = command.replace(/what is|calculate/gi, '')
+                                    .replace(/x|times|multiplied by/gi, '*')
+                                    .replace(/plus|add/gi, '+')
+                                    .replace(/minus|subtract/gi, '-')
+                                    .replace(/divided by|over/gi, '/')
+                                    .replace(/point/gi, '.')
+                                    .replace(/\s+/g, ''); // Remove spaces
+            
+            if (/^[\d\.\+\-\*\/\(\)eπ%]+$/.test(expression)) {
+                currentExpression = expression;
+                display.textContent = currentExpression;
+                // If the command implies immediate calculation
+                if (command.includes('*') || command.includes('+') || command.includes('-') || command.includes('/')) {
+                     calculateResult();
+                }
+            } else {
+                speak("Sorry, I couldn't understand that calculation.");
+            }
+        }
+        // Initial render
+        renderHistory();
+    </script>
+</body>
+</html>
+
